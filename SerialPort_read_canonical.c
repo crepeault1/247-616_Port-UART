@@ -1,8 +1,8 @@
 /**
- * @file    SerialPort_read.c
+ * @file    SerialPort_read_canoncial.c
  * 
  * @brief Serial Port Programming in C (Serial Port Read)  
- * Non Cannonical mode   
+ * Cannonical mode   
  * Sellecting the Serial port Number on Linux   
  * /dev/ttyUSBx - when using USB to Serial Converter, where x can be 0,1,2...etc 
  * /dev/ttySx   - for PC hardware based Serial ports, where x can be 0,1,2...etc  
