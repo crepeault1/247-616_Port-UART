@@ -16,11 +16,11 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
-const char *portTTY = "/dev/ttyUSB1"; // ttyUSB1
+const char *portTTY = "/dev/ttyUSB2"; // dynamique: revérifier le port ttyUSB au boot
 
 // Prototypes
-void vInitPortSerieEnfant(void);
-void vInitPortSerieParent(void);
+int vInitPortSerieEnfant(void);
+int vInitPortSerieParent(void);
 int fdEnfant; // File Descriptor
 int fdParent; // File Descriptor
 
@@ -30,6 +30,8 @@ void main(void)
     int i;
     int stopParent = 0;
     int stopEnfant = 0;
+    fdEnfant = vInitPortSerieEnfant();
+    fdParent = vInitPortSerieParent();
     pid = fork();
 
     if (pid < 0)
@@ -38,7 +40,6 @@ void main(void)
     }
     else if (pid == 0)
     {
-        vInitPortSerieEnfant();
         ssize_t ucLongueur;
         char write_buffer[256];
         ssize_t bytes_written = 0;
@@ -70,7 +71,6 @@ void main(void)
     }
     else
     {
-        vInitPortSerieParent();
         printf("Je suis le processus Père, j'écris sur le terminal ce que j'entends sur le port série.\n");
         while (!stopParent)
         {
@@ -105,7 +105,7 @@ void main(void)
     }
 }
 
-void vInitPortSerieParent(void)
+int vInitPortSerieParent(void)
 {
     // Opening the Serial Port
     fdParent = open(portTTY, O_RDWR | O_NOCTTY);
@@ -142,9 +142,11 @@ void vInitPortSerieParent(void)
 
     SerialPortSettings.c_cc[VMIN] = 1;   // Read at least X character(s)
     SerialPortSettings.c_cc[VTIME] = 50; // Wait 5sec (0 for indefinetly)
+
+    return fdParent;
 }
 
-void vInitPortSerieEnfant(void)
+int vInitPortSerieEnfant(void)
 {
     // Opening the Serial Port
     fdEnfant = open(portTTY, O_RDWR | O_NOCTTY);
@@ -182,4 +184,6 @@ void vInitPortSerieEnfant(void)
 
     SerialPortSettings.c_cc[VMIN] = 1;   // Read at least X character(s)
     SerialPortSettings.c_cc[VTIME] = 50; // Wait 5sec (0 for indefinetly)
+
+    return fdEnfant;
 }
